@@ -1,0 +1,6 @@
+[submodule "SlackBot"]
+	path = SlackBot
+	url = https://github.com/dstruthers/SlackBot.git
+[submodule "cleverbot.py"]
+	path = cleverbot.py
+	url = https://github.com/folz/cleverbot.py.git
