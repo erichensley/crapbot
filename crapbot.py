@@ -4,12 +4,9 @@ import random
 from random import randint
 from mcstatus import MinecraftServer
 from imgurpython import ImgurClient
-
+import cleverbot
 import markov
 from SlackBot import SlackBot
-import cleverbot
-
-
 
 slack_channel_id = None
 keyword_mappings = {}
