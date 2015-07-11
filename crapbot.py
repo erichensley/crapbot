@@ -224,9 +224,9 @@ def minecraft_status (bot, msg):
 def imgur_search (bot, msg):
     client = ImgurClient(imgur_client_id, imgur_client_secret)
     search = re.match('^!imgur (.*)$', msg.text, re.I)
-    items = client.gallery_search(search, advanced=None, sort='viral', window='all', page=0)
-
-    bot.say(msg.channel,random.choice(items.link))
+    items = client.gallery_search(search.groups()[0], advanced=None, sort='viral', window='all', page=0)
+    item = random.choice(items)
+    bot.say(msg.channel,item.link)
 
 
 load_config()
