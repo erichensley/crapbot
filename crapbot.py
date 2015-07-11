@@ -1,7 +1,9 @@
 import ConfigParser, json, re, urllib2
 import xml.etree.ElementTree as ET
+import random
 from random import randint
 from mcstatus import MinecraftServer
+from imgurpython import ImgurClient
 
 import markov
 from SlackBot import SlackBot
@@ -16,7 +18,7 @@ chat_quiet = True
 
 def load_config():
     '''Load bot options from config file'''
-    global slack_api_token, slack_channel, keyword_file, send_greetings, wolfram_app_id
+    global slack_api_token, slack_channel, keyword_file, send_greetings, wolfram_app_id, imgur_client_id,imgur_client_secret
     config = ConfigParser.RawConfigParser()
     config.read('crapbot.cfg')
     slack_api_token = config.get('General', 'api_token')
@@ -25,6 +27,8 @@ def load_config():
     send_greetings = config.getboolean('General', 'greet_people')
     refrigerators_file = config.get('General', 'refrigerators_file')
     wolfram_app_id = config.get('General', 'wolfram_app_id')
+    imgur_client_id = config.get('General','imgur_client_id')
+    imgur_client_secret = config.get('General','imgur_client_secret')
 
 def load_keywords():
     '''Load keyword matching patterns from JSON file'''
@@ -217,7 +221,12 @@ def minecraft_status (bot, msg):
         bot.say(msg.channel, "The following people are on: {0}".format(", ".join(query.players.names)))
         bot.say(msg.channel, "The server is running version {0} at the moment.".format("".join(query.software.version)))
 
+def imgur_search (bot, msg):
+    client = ImgurClient(imgur_client_id, imgur_client_secret)
+    search = re.match('^!imgur (.*)$', msg.text, re.I)
+    items = client.gallery_search(search, advanced=None, sort='viral', window='all', page=0)
 
+    bot.say(msg.channel,random.choice(items.link))
 
 
 load_config()
@@ -249,5 +258,6 @@ buch.add_command('markov', markov_command)
 buch.add_command('chatenabled', chatenabled)
 buch.add_command('chatdisabled', chatdisabled)
 buch.add_command('minecraft', minecraft_status)
+buch.add_command('imgur', imgur_search)
 
 buch.run()
