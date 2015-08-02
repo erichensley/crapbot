@@ -1,11 +1,13 @@
 import ConfigParser, json, re, urllib2
 import xml.etree.ElementTree as ET
 import random
+import sys
 from random import randint
 from mcstatus import MinecraftServer
 from imgurpython import ImgurClient
 import cleverbot
 import markov
+import faceswap
 from SlackBot import SlackBot
 
 slack_channel_id = None
@@ -16,7 +18,8 @@ chat_quiet = True
 
 def load_config():
     '''Load bot options from config file'''
-    global slack_api_token, slack_channel, keyword_file, send_greetings, wolfram_app_id, imgur_client_id,imgur_client_secret
+    global slack_api_token, slack_channel, keyword_file, send_greetings, wolfram_app_id
+    global imgur_client_id,imgur_client_secret,imgur_access_token,imgur_refresh_token
     config = ConfigParser.RawConfigParser()
     config.read('crapbot.cfg')
     slack_api_token = config.get('General', 'api_token')
@@ -27,6 +30,8 @@ def load_config():
     wolfram_app_id = config.get('General', 'wolfram_app_id')
     imgur_client_id = config.get('General','imgur_client_id')
     imgur_client_secret = config.get('General','imgur_client_secret')
+    imgur_access_token = config.get('General','imgur_access_token')
+    imgur_refresh_token = config.get('General','imgur_refresh_token')
 
 def load_keywords():
     '''Load keyword matching patterns from JSON file'''
@@ -226,6 +231,80 @@ def imgur_search (bot, msg):
     item = random.choice(items)
     bot.say(msg.channel,item.link)
 
+def imgur_upload(image, name):
+    # Get client ID and secret from auth.ini
+
+    client = ImgurClient(imgur_client_id, imgur_client_secret)
+
+    # Authorization flow, pin example (see docs for other auth types)
+    authorization_url = client.get_auth_url('pin')
+
+    #print("Go to the following URL: {0}".format(authorization_url))
+
+    # Read in the pin, handle Python 2 or 3 here.
+    #pin = input("Enter pin code: ")
+    #pin = '73a183928b'
+    # ... redirect user to `authorization_url`, obtain pin (or code or token) ...
+    #credentials = client.authorize(pin, 'pin')
+    client.set_user_auth(imgur_access_token, imgur_refresh_token)
+    config = {
+            'album': 'IbzLr',
+            'name':  name,
+            'title': name,
+            'description': name
+            }
+    image = client.upload_from_path(image, config=config, anon=False)
+    #print("Authentication successful! Here are the details:")
+    #print("   Access token:  {0}".format(credentials['access_token']))
+    #print("   Refresh token: {0}".format(credentials['refresh_token']))
+    return image['link']
+
+
+def faceoff (bot, msg):
+    try:
+        images = re.match('^!faceoff (.*) (.*)$', msg.text, re.I)
+        names = {"darren" : "https://i.imgur.com/brwLkI5.jpg",
+                 "eric" : "https://i.imgur.com/IPfm4YA.jpg",
+                 "kris": "https://i.imgur.com/NCjV69Z.jpg",
+                 "alan": "http://i.imgur.com/Nww8Nyt.jpg",
+                 "james": "https://i.imgur.com/Oq42bxx.jpg",
+                 "marc": "http://i.imgur.com/GZcOwOy.jpg"
+                }
+        print images.groups()[0]
+        print images.groups()[1]
+        url1 = images.groups()[0]
+        url2 = images.groups()[1]
+        if names.has_key(url1.lower()):
+		    url1 = names[url1.lower()]
+        if names.has_key(url2.lower()):
+		    url2 = names[url2.lower()]
+        print url1
+        print url2
+        faceswap.swap_face(url1, url2)
+        link = imgur_upload('output.jpg', url2)
+        bot.say(msg.channel,link)
+    except faceswap.NoFaces:
+        bot.say(msg.channel, 'No faces detected. :ignore_it:')
+
+def facecheck(bot,msg):
+    try:
+        images = re.match('^!facecheck (.*)$', msg.text, re.I)
+        names = {"darren" : "https://i.imgur.com/brwLkI5.jpg",
+                 "eric" : "https://i.imgur.com/IPfm4YA.jpg",
+                 "kris": "https://i.imgur.com/NCjV69Z.jpg",
+                 "alan": "http://i.imgur.com/Nww8Nyt.jpg",
+                 "james": "https://i.imgur.com/Oq42bxx.jpg",
+                 "marc": "http://i.imgur.com/GZcOwOy.jpg"
+                }
+        url1 = images.groups()[0]
+        if names.has_key(url1.lower()):
+		    url1 = names[url1.lower()]
+        faceswap.check_face(url1)
+        bot.say(msg.channel, ':claudette:Look at that face!')
+    except faceswap.NoFaces:
+        bot.say(msg.channel, 'No faces detected. :ignore_it:')
+    except:
+        e = sys.exc_info()[0]
 
 load_config()
 
@@ -257,5 +336,8 @@ buch.add_command('chatenabled', chatenabled)
 buch.add_command('chatdisabled', chatdisabled)
 buch.add_command('minecraft', minecraft_status)
 buch.add_command('imgur', imgur_search)
+buch.add_command('faceoff', faceoff)
+buch.add_command('facecheck', facecheck)
+
 
 buch.run()
