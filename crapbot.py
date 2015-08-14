@@ -227,9 +227,13 @@ def minecraft_status (bot, msg):
 def imgur_search (bot, msg):
     client = ImgurClient(imgur_client_id, imgur_client_secret)
     search = re.match('^!imgur (.*)$', msg.text, re.I)
-    items = client.gallery_search(search.groups()[0], advanced=None, sort='viral', window='all', page=0)
-    item = random.choice(items)
-    bot.say(msg.channel,item.link)
+    items = client.gallery_search(search.groups()[0], advanced=None, sort='top', window='all', page=0)
+    #item = random.choice(items)
+    if not items:
+        bot.say(msg.channel,":buch: No results for {0}".format("".join(search.groups()[0])))
+    else:
+        item = items[0]
+        bot.say(msg.channel,item.link)
 
 def imgur_upload(image, name):
     # Get client ID and secret from auth.ini
