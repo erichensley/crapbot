@@ -6,7 +6,7 @@ from random import randint
 from mcstatus import MinecraftServer
 from imgurpython import ImgurClient
 import cleverbot
-import markov
+#import markov
 import faceswap
 from SlackBot import SlackBot
 
@@ -66,10 +66,6 @@ def listen_for_keywords(bot, msg):
             if re.search(pattern, msg.text, re.I):
                 bot.say(slack_channel_id, keyword_mappings[pattern])
                 break
-
-def build_markov_vocab(bot, msg):
-    if msg.user != bot.user_id and msg.channel == slack_channel_id:
-        markov.process_text(msg.text)
 
 def reload_command(bot, msg):
     load_config()
@@ -173,8 +169,6 @@ def speakup_command(bot, msg):
     global quiet_mode
     quiet_mode = False
 
-def markov_command(bot, msg):
-    bot.say(msg.channel, markov.markov_chain().upper() + '!!!')
 
 def greet_people(bot, msg):
     '''Event handler that sends a greeting to users when they return to the
@@ -236,20 +230,8 @@ def imgur_search (bot, msg):
         bot.say(msg.channel,item.link)
 
 def imgur_upload(image, name):
-    # Get client ID and secret from auth.ini
-
     client = ImgurClient(imgur_client_id, imgur_client_secret)
-
-    # Authorization flow, pin example (see docs for other auth types)
     authorization_url = client.get_auth_url('pin')
-
-    #print("Go to the following URL: {0}".format(authorization_url))
-
-    # Read in the pin, handle Python 2 or 3 here.
-    #pin = input("Enter pin code: ")
-    #pin = '73a183928b'
-    # ... redirect user to `authorization_url`, obtain pin (or code or token) ...
-    #credentials = client.authorize(pin, 'pin')
     client.set_user_auth(imgur_access_token, imgur_refresh_token)
     config = {
             'album': 'IbzLr',
@@ -258,22 +240,15 @@ def imgur_upload(image, name):
             'description': name
             }
     image = client.upload_from_path(image, config=config, anon=False)
-    #print("Authentication successful! Here are the details:")
-    #print("   Access token:  {0}".format(credentials['access_token']))
-    #print("   Refresh token: {0}".format(credentials['refresh_token']))
     return image['link']
 
 
 def faceoff (bot, msg):
     try:
         images = re.match('^!faceoff (.*) (.*)$', msg.text, re.I)
-        names = {"darren" : "https://i.imgur.com/brwLkI5.jpg",
-                 "eric" : "https://i.imgur.com/IPfm4YA.jpg",
-                 "kris": "https://i.imgur.com/NCjV69Z.jpg",
-                 "alan": "http://i.imgur.com/Nww8Nyt.jpg",
-                 "james": "https://i.imgur.com/Oq42bxx.jpg",
-                 "marc": "http://i.imgur.com/GZcOwOy.jpg"
-                }
+        names_file = open("names.json","r")
+        names = json.load(names_file)
+        names_file.close()
         print images.groups()[0]
         print images.groups()[1]
         url1 = images.groups()[0]
@@ -293,13 +268,9 @@ def faceoff (bot, msg):
 def facecheck(bot,msg):
     try:
         images = re.match('^!facecheck (.*)$', msg.text, re.I)
-        names = {"darren" : "https://i.imgur.com/brwLkI5.jpg",
-                 "eric" : "https://i.imgur.com/IPfm4YA.jpg",
-                 "kris": "https://i.imgur.com/NCjV69Z.jpg",
-                 "alan": "http://i.imgur.com/Nww8Nyt.jpg",
-                 "james": "https://i.imgur.com/Oq42bxx.jpg",
-                 "marc": "http://i.imgur.com/GZcOwOy.jpg"
-                }
+        names_file = open("names.json","r")
+        names = json.load(names_file)
+        names_file.close()
         url1 = images.groups()[0]
         if names.has_key(url1.lower()):
 		    url1 = names[url1.lower()]
@@ -310,6 +281,45 @@ def facecheck(bot,msg):
     except:
         e = sys.exc_info()[0]
 
+def facelist(bot,msg):
+    pass
+
+def faceadd(bot,msg):
+    print "Face Add!"
+    images = re.match('^!faceadd (.*) (.*)$', msg.text, re.I)
+    name = images.groups()[0]
+    url = images.groups()[1]
+
+    names = {name : url}
+
+    with open('names.json') as f:
+        data = json.load(f)
+
+    data.update(names)
+
+    with open('names.json', 'w') as f:
+        json.dump(data, f)
+
+    f.close()
+
+    bot.say(msg.channel, ":claudette: Face added! I have breast cancer!")
+
+def faceremove(bot,msg):
+    print "Face Remove!"
+    images = re.match('^!faceremove (.*)$', msg.text, re.I)
+    name = images.groups()[0]
+    with open('names.json') as f:
+        data = json.load(f)
+
+    data.pop(name, None)
+
+    with open('names.json', 'w') as f:
+        json.dump(data, f)
+
+    f.close()
+
+    bot.say(msg.channel, ':claudette:  Face removed! Do you have a secure position?')
+
 load_config()
 
 buch = SlackBot(slack_api_token)
@@ -317,7 +327,6 @@ buch.show_typing = True
 
 buch.add_event_listener('open', on_open)
 buch.add_event_listener('message', listen_for_keywords)
-buch.add_event_listener('message', build_markov_vocab)
 buch.add_event_listener('presence_change', greet_people)
 buch.add_event_listener('message', chatbot)
 
@@ -332,7 +341,7 @@ buch.add_command('yell', yell_command)
 #buch.add_command('lookup', lookup_command)
 #buch.add_command('shutup', shutup_command)
 #buch.add_command('speakup', speakup_command)
-buch.add_command('markov', markov_command)
+#buch.add_command('markov', markov_command)
 #buch.add_command('eric', eric_command)
 
 #Crapbot Specific Commands #
@@ -342,6 +351,8 @@ buch.add_command('minecraft', minecraft_status)
 buch.add_command('imgur', imgur_search)
 buch.add_command('faceoff', faceoff)
 buch.add_command('facecheck', facecheck)
+buch.add_command('faceadd', faceadd)
+buch.add_command('faceremove', faceremove)
 
 
 buch.run()
