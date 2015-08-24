@@ -9,6 +9,8 @@ import cleverbot
 #import markov
 import faceswap
 from SlackBot import SlackBot
+from minecraft import minecraft_watch
+import thread
 
 slack_channel_id = None
 keyword_mappings = {}
@@ -282,7 +284,18 @@ def facecheck(bot,msg):
         e = sys.exc_info()[0]
 
 def facelist(bot,msg):
-    pass
+    with open('names.json') as f:
+        data = json.load(f)
+    bot.say(msg.channel, 'Commands are !faceoff <destination face> <source face>, !faceadd <name> <url>, !faceremove <name>')
+
+    players = ''
+
+    for key in data:
+        players += data[key] + ", "
+
+    bot.say(msg.channel, players)
+
+
 
 def faceadd(bot,msg):
     print "Face Add!"
@@ -320,6 +333,11 @@ def faceremove(bot,msg):
 
     bot.say(msg.channel, ':claudette:  Face removed! Do you have a secure position?')
 
+def minecraft_speakup(bot,msg):
+    #minecraft_watch(bot,msg)
+    thread.start_new(minecraft_watch,(bot,msg))
+
+
 load_config()
 
 buch = SlackBot(slack_api_token)
@@ -353,6 +371,8 @@ buch.add_command('faceoff', faceoff)
 buch.add_command('facecheck', facecheck)
 buch.add_command('faceadd', faceadd)
 buch.add_command('faceremove', faceremove)
+buch.add_command('facelist', facelist)
+buch.add_command('minecraft_speakup', minecraft_speakup)
 
-
+#thread.start_new(buch.run, ())
 buch.run()
