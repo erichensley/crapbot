@@ -1,4 +1,6 @@
 import time,re
+minecraft_stop = False
+
 
 def watch(fn, words):
     fp = open(fn, 'r')
@@ -13,6 +15,8 @@ def watch(fn, words):
                     yield (word, new)
         else:
             time.sleep(0.5)
+            if minecraft_stop(True):
+                thread.exit()
 
 def minecraft_watch(bot,msg):
     fn = '/opt/minecraft/logs/latest.log'
@@ -20,4 +24,4 @@ def minecraft_watch(bot,msg):
     words = ['joined the game']
     for hit_word, hit_sentence in watch(fn, words):
         output = re.match('([^\s]+) ([^\s]+) ([^\s]+) ([^\s]+)', hit_sentence, re.I)
-        bot.say(msg.channel, '%r has joined Minecraft' % (output.group(4)))
+        bot.say(msg.channel, ':tanky:%s has joined Minecraft' % (output.group(4)))

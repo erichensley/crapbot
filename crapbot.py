@@ -17,6 +17,7 @@ keyword_mappings = {}
 wolfram_app_id = None
 quiet_mode = False
 chat_quiet = True
+minecraft_stop = False
 
 def load_config():
     '''Load bot options from config file'''
@@ -334,9 +335,12 @@ def faceremove(bot,msg):
     bot.say(msg.channel, ':claudette:  Face removed! Do you have a secure position?')
 
 def minecraft_speakup(bot,msg):
-    #minecraft_watch(bot,msg)
     thread.start_new(minecraft_watch,(bot,msg))
+    bot.say(msg.channel, ':tanky: Anyone want to play Minecraft?')
 
+def minecraft_shutup(bot,msg):
+    minecraft_stop = True
+    bot.say(msg.channel, ':tanky:  Awww come on guys')
 
 load_config()
 
@@ -373,6 +377,7 @@ buch.add_command('faceadd', faceadd)
 buch.add_command('faceremove', faceremove)
 buch.add_command('facelist', facelist)
 buch.add_command('minecraft_speakup', minecraft_speakup)
+buch.add_command('minecraft_shutup', minecraft_shutup)
 
 #thread.start_new(buch.run, ())
 buch.run()
