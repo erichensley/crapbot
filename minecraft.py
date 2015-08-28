@@ -15,7 +15,7 @@ def watch(fn, words):
                     yield (word, new)
         else:
             time.sleep(0.5)
-            if minecraft_stop(True):
+            if minecraft_stop:
                 thread.exit()
 
 def minecraft_watch(bot,msg):
