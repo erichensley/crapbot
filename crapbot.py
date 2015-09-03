@@ -275,7 +275,7 @@ def facecheck(bot,msg):
         names = json.load(names_file)
         names_file.close()
         url1 = images.groups()[0]
-        if names.has_key(url1.lower()):
+        if images.groups()[0]:
 		    url1 = names[url1.lower()]
         faceswap.check_face(url1)
         bot.say(msg.channel, ':claudette:Look at that face!')
@@ -285,17 +285,20 @@ def facecheck(bot,msg):
         e = sys.exc_info()[0]
 
 def facelist(bot,msg):
-    with open('names.json') as f:
-        data = json.load(f)
+    images = re.match('^!facelist(.*)$', msg.text, re.I)
+    names_file = open("names.json","r")
+    names = json.load(names_file)
+    names_file.close()
+    url1 = images.groups()[0]
     bot.say(msg.channel, 'Commands are !faceoff <destination face> <source face>, !faceadd <name> <url>, !faceremove <name>')
-
-    players = ''
-
-    for key in data:
-        players += data[key] + ", "
-
-    bot.say(msg.channel, players)
-
+    if images.groups()[0]:
+        url1 = names[url1.lower()]
+        bot.say(msg.chanel, url1)
+    else:
+        players = ''
+        for key in names:
+            players += key + ", "
+        bot.say(msg.channel, players)
 
 
 def faceadd(bot,msg):
