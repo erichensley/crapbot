@@ -44,6 +44,7 @@ def join_match(line): pass
 def left_match(line): pass
 def says_match(line): pass
 def died_match(line): pass
+def died2_match(line): pass
 def chat_match(line): pass
 
 
@@ -58,7 +59,8 @@ def minecraft_watch(bot, msg):
                 'left the game':  left_match,
                 'says':            says_match,
                 'died':            died_match,
-                '<.*>':            chat_match
+                '!s':              chat_match,
+                'was':             died2_match
               }
     for line in tail(log_file):
         for pattern in patterns:
