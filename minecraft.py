@@ -50,8 +50,8 @@ def chat_match(line): pass
 
 
 def minecraft_watch(bot, msg):
-    #log_file = '/opt/minecraft/logs/latest.log'
-    log_file = '/Users/eric/Documents/latest.log'
+    log_file = '/opt/minecraft/logs/latest.log'
+    #log_file = '/Users/eric/Documents/latest.log'
 
     patterns = {
                 'joined the game': join_match,
