@@ -225,11 +225,11 @@ def imgur_search (bot, msg):
     client = ImgurClient(imgur_client_id, imgur_client_secret)
     search = re.match('^!imgur (.*)$', msg.text, re.I)
     items = client.gallery_search(search.groups()[0], advanced=None, sort='top', window='all', page=0)
-    #item = random.choice(items)
     if not items:
         bot.say(msg.channel,":buch: No results for {0}".format("".join(search.groups()[0])))
     else:
-        item = items[0]
+        item = random.choice(items)
+        #item = items[0]
         bot.say(msg.channel,item.link)
 
 def imgur_upload(image, name):
@@ -267,6 +267,11 @@ def faceoff (bot, msg):
         bot.say(msg.channel,link)
     except faceswap.NoFaces:
         bot.say(msg.channel, 'No faces detected. :ignore_it:')
+    except faceswap.TooManyFaces:
+        bot.say(msg.channel, 'Too many faces! :ignore_it:')
+    except:
+        e = e = sys.exc_info()[0]
+        bot.say('debug', e)
 
 def facecheck(bot,msg):
     try:
@@ -281,8 +286,11 @@ def facecheck(bot,msg):
         bot.say(msg.channel, ':claudette:Look at that face!')
     except faceswap.NoFaces:
         bot.say(msg.channel, 'No faces detected. :ignore_it:')
+    except faceswap.TooManyFaces:
+        bot.say(msg.channel, 'Too many faces! :ignore_it:')
     except:
         e = sys.exc_info()[0]
+        bot.say('debug', e)
 
 def facelist(bot,msg):
     images = re.match('^!facelist(.*)$', msg.text, re.I)
@@ -319,7 +327,7 @@ def faceadd(bot,msg):
 
     f.close()
 
-    bot.say(msg.channel, ":claudette: Face added! I have breast cancer!")
+    bot.say(msg.channel, ":claudette: Face added!")
 
 def faceremove(bot,msg):
     print "Face Remove!"
@@ -344,6 +352,11 @@ def minecraft_speakup(bot,msg):
 def minecraft_shutup(bot,msg):
     minecraft_stop = True
     bot.say(msg.channel, ':tanky:  Awww come on guys')
+
+def minecraft_player(bot,msg):
+    bot.say(msg.channel, 'Getting player info... ')
+    player = re.match('^!minecraft_player(.*)$', msg.text, re.I)
+
 
 load_config()
 
