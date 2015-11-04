@@ -232,6 +232,17 @@ def imgur_search (bot, msg):
         #item = items[0]
         bot.say(msg.channel,item.link)
 
+def imgur_gifsearch (bot, msg):
+    client = ImgurClient(imgur_client_id, imgur_client_secret)
+    search = re.match('^!gif (.*)$', msg.text, re.I)
+    items = client.gallery_search(search.groups()[0] + ' ext: gif AND animated: 1', advanced=None, sort='top', window='all', page=0)
+    if not items:
+        bot.say(msg.channel,":buch: No results for {0}".format("".join(search.groups()[0])))
+    else:
+        item = random.choice(items)
+        #item = items[0]
+        bot.say(msg.channel,item.link)
+
 def imgur_upload(image, name):
     client = ImgurClient(imgur_client_id, imgur_client_secret)
     authorization_url = client.get_auth_url('pin')
@@ -387,6 +398,7 @@ buch.add_command('chatenabled', chatenabled)
 buch.add_command('chatdisabled', chatdisabled)
 buch.add_command('minecraft', minecraft_status)
 buch.add_command('imgur', imgur_search)
+buch.add_command('gif', imgur_gifsearch)
 buch.add_command('faceoff', faceoff)
 buch.add_command('facecheck', facecheck)
 buch.add_command('faceadd', faceadd)
