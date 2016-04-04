@@ -5,6 +5,8 @@ from minecraft import minecraft_watch
 chat_quiet = True
 
 bot = slack.SlackBot(api_token=config.SLACK_API_TOKEN, debug=True)
+
+# Cleverbot Chat
 cleverbot_client = cleverbot.Cleverbot()
 
 @bot.match_message('!chatenabled')
@@ -35,9 +37,11 @@ def chatdisabled(msg):
     chat_quiet = True
     bot.say(msg.channel, 'Fiiiine. I will shut up.')
 
+#Minecraft Status
+
 @bot.match_message('!minecraft')
 def minecraft_status (msg):
-    server = MinecraftServer.lookup("minecraft.westsixth.net:25565")
+    server = MinecraftServer.lookup("10.0.1.20:25565")
     query = server.query()
     if not query.players.names:
          bot.say(msg.channel, "Nobody is on :-(")
@@ -45,6 +49,13 @@ def minecraft_status (msg):
     else:
         bot.say(msg.channel, "The following people are on: {0}".format(", ".join(query.players.names)))
         bot.say(msg.channel, "The server is running version {0} at the moment.".format("".join(query.software.version)))
+
+#TODO: Add Minecraft Log Watch
+
+#Imgur
+
+#TODO: Make random imgur from subreddit function
+
 
 
 bot.run()
