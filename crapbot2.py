@@ -52,7 +52,7 @@ def minecraft_status (msg):
 
 #TODO: Add Minecraft Log Watch
 
-#Imgur
+#Imgur API
 
 #TODO: Make random imgur from subreddit function
 
