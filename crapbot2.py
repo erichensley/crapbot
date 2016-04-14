@@ -1,4 +1,4 @@
-import slack, config, cleverbot
+import slack, config, cleverbot, threading, re, time
 from mcstatus import MinecraftServer
 from minecraft import minecraft_watch
 
@@ -41,14 +41,34 @@ def chatdisabled(msg):
 
 @bot.match_message('!minecraft')
 def minecraft_status (msg):
-    server = MinecraftServer.lookup("10.0.1.20:25565")
-    query = server.query()
-    if not query.players.names:
-         bot.say(msg.channel, "Nobody is on :-(")
-         bot.say(msg.channel, "The server is running version {0} at the moment.".format("".join(query.software.version)))
-    else:
-        bot.say(msg.channel, "The following people are on: {0}".format(", ".join(query.players.names)))
-        bot.say(msg.channel, "The server is running version {0} at the moment.".format("".join(query.software.version)))
+    try:
+        server = MinecraftServer.lookup("minecraft.westsixth.net:25565")
+        query = server.query()
+        if not query.players.names:
+             bot.say(msg.channel, "Nobody is on :-(")
+             bot.say(msg.channel, "The server is running version {0} at the moment.".format("".join(query.software.version)))
+        else:
+            bot.say(msg.channel, "The following people are on: {0}".format(", ".join(query.players.names)))
+            bot.say(msg.channel, "The server is running version {0} at the moment.".format("".join(query.software.version)))
+
+    except:
+        bot.say(msg.channel, "The server timed out. Do you have allow query enabled?")
+
+def minecraft_speakup(msg):
+    try:
+        minecraft_watch(msg, bot)
+    except:
+        bot.say(msg.channel, "There was an error reading the server log :ignore_it")
+
+
+
+@bot.match_message('!minecraft_speakup')
+def minecraft_start(msg):
+    d = threading.Thread(name='minecraft', target=minecraft_speakup, args=(msg,))
+    d.setDaemon(True)
+    bot.say(msg.channel, "Starting server log watch on minecraft.westsixth.net")
+    d.start()
+
 
 #TODO: Add Minecraft Log Watch
 
