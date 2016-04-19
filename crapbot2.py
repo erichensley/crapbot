@@ -1,8 +1,9 @@
-import slack, config, cleverbot, threading, re, time
+import slack, config, cleverbot, threading
 from mcstatus import MinecraftServer
 from minecraft import minecraft_watch
 
 chat_quiet = True
+run = True
 
 bot = slack.SlackBot(api_token=config.SLACK_API_TOKEN, debug=True)
 
@@ -54,28 +55,45 @@ def minecraft_status (msg):
     except:
         bot.say(msg.channel, "The server timed out. Do you have allow query enabled?")
 
-def minecraft_speakup(msg):
+
+
+def minecraft_speakup(msg, stop_event):
     try:
-        minecraft_watch(msg, bot)
+        minecraft_watch(msg, bot, stop_event)
     except:
-        bot.say(msg.channel, "There was an error reading the server log :ignore_it")
+        bot.say(msg.channel, "There was an error reading the server log :ignore_it:")
 
-
+#Create Minecraft Stop Event
+s = threading.Event()
+running = False
 
 @bot.match_message('!minecraft_speakup')
 def minecraft_start(msg):
-    d = threading.Thread(name='minecraft', target=minecraft_speakup, args=(msg,))
-    d.setDaemon(True)
-    bot.say(msg.channel, "Starting server log watch on minecraft.westsixth.net")
-    d.start()
+    if running is False:
+        d = threading.Thread(name='minecraft', target=minecraft_speakup, args=(msg,s,))
+        d.setDaemon(True)
+        d.start()
+    else:
+        bot.say(msg.channel, "Already running sir!")
 
+@bot.match_message('!minecraft_shutup')
+def minecraft_stop(msg):
+    try:
+        bot.say(msg.channel, "Stopping log watch...")
+        d = threading.Thread(name='minecraft', target=minecraft_speakup, args=(msg, s,))
+        s.set()
+        if not d.isAlive():
+            bot.say(msg.channel, "Logging stopped :enjoy_it:")
+    except:
+        bot.say(msg.channel, "There was an error stopping. :ignore_it:")
+    finally:
+        s.clear()
 
 #TODO: Add Minecraft Log Watch
 
 #Imgur API
 
 #TODO: Make random imgur from subreddit function
-
 
 
 bot.run()
