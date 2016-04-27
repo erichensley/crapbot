@@ -8,3 +8,10 @@ threading
 time
 urllib2
 websocket
+config
+cleverbot
+ConfigParser
+random
+sys
+mcstatus
+imgurpython
