@@ -2,16 +2,12 @@
 #Use the following command install in virtualenv: env/bin/pip install -r requirements.txt
 
 websocket
-json
-re
-threading
 time
 urllib2
 websocket
 config
 cleverbot
 ConfigParser
-random
-sys
 mcstatus
 imgurpython
+cv2

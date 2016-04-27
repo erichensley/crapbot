@@ -1,12 +1,10 @@
-import slack, config, cleverbot, threading, ConfigParser, random, re, json, faceswap, sys
+import slack, cleverbot, threading, ConfigParser, random, re, json, faceswap, sys
 from mcstatus import MinecraftServer
 from minecraft import minecraft_watch
 from imgurpython import ImgurClient
 
 chat_quiet = True
 run = True
-
-bot = slack.SlackBot(api_token=config.SLACK_API_TOKEN, debug=True)
 
 #Configuration Variables
 def load_config():
@@ -28,6 +26,8 @@ def load_config():
     imgur_refresh_token = config.get('General','imgur_refresh_token')
 
 load_config()
+
+bot = slack.SlackBot(api_token=slack_api_token, debug=True)
 
 # Cleverbot Chat
 cleverbot_client = cleverbot.Cleverbot()
