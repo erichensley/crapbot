@@ -1,13 +1,13 @@
 #These are the required Python Packages#
 #Use the following command install in virtualenv: env/bin/pip install -r requirements.txt
 
-websocket
-time
-urllib2
-websocket
+websocket-client
 config
 cleverbot
-ConfigParser
 mcstatus
 imgurpython
 cv2
+-e git://github.com/dstruthers/python-slack.git@master#egg=slack
+numpy
+dlib
+pygtail

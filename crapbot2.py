@@ -1,4 +1,4 @@
-import slack, cleverbot, threading, ConfigParser, random, re, json, faceswap, sys
+import slack, cleverbot, threading, configparser, random, re, json, faceswap, sys
 from mcstatus import MinecraftServer
 from minecraft import minecraft_watch
 from imgurpython import ImgurClient
@@ -9,10 +9,10 @@ run = True
 #Configuration Variables
 def load_config():
     # Load Config
-    global slack_api_token, slack_channel, keyword_file, send_greetings, wolfram_app_id
+    global slack_api_token, slack_channel, keyword_file, send_greetings, wolfram_app_id, minecraft_log_path
     global imgur_client_id, imgur_client_secret, imgur_access_token, imgur_refresh_token
     '''Load bot options from config file'''
-    config = ConfigParser.RawConfigParser()
+    config = configparser.RawConfigParser()
     config.read('crapbot.cfg')
     slack_api_token = config.get('General', 'api_token')
     slack_channel = config.get('General', 'slack_channel')
@@ -24,6 +24,7 @@ def load_config():
     imgur_client_secret = config.get('General','imgur_client_secret')
     imgur_access_token = config.get('General','imgur_access_token')
     imgur_refresh_token = config.get('General','imgur_refresh_token')
+    minecraft_log_path = config.get('General', 'minecraft_log_path')
 
 load_config()
 
@@ -138,14 +139,26 @@ def imgur_gifsearch (msg):
         #item = items[0]
         bot.say(msg.channel,item.link)
 
-@bot.match_message('!seinfeld')
+@bot.match_message('!subreddit')
 def seinfeld(msg):
     client = ImgurClient(imgur_client_id, imgur_client_secret)
-    search = re.match('^!seinfeld (.*)$', msg.text, re.I)
-    items = client.subreddit_gallery('seinfeldgifs', sort='top', window='week', page=0)
+    search = re.match('^!subreddit (.*)$', msg.text, re.I)
+    items = client.subreddit_gallery(search.groups()[0], sort='top', window='year', page=0)
+    items.append()
     if not items:
-        bot.say(msg.channel, ":buch: No results for {0}".format("".join(search.groups()[0])))
+        bot.say(msg.channel, ":buch: No results for the subreddit called {0}".format("".join(search.groups()[0])))
+    else:
+        item = random.choice(items)
+        # item = items[0]
+        bot.say(msg.channel, item.link)
 
+@bot.match_message('!seinfeldgif')
+def seinfeld(msg):
+    client = ImgurClient(imgur_client_id, imgur_client_secret)
+    items = client.subreddit_gallery('seinfeldgifs', sort='top', window='year', page=0)
+    items.append()
+    if not items:
+        bot.say(msg.channel, 'The belts gone! Where is it?')
     else:
         item = random.choice(items)
         # item = items[0]

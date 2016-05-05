@@ -1,4 +1,4 @@
-import time, re, sys
+import time, re, sys, configparser
 from pygtail import Pygtail
 
 # def tail(filepath):
@@ -34,8 +34,11 @@ def chat_match(line): pass
 def minecraft_watch(msg, bot, minecraft_stop):
     global thread_count
     try:
+        config = configparser.RawConfigParser()
+        config.read('crapbot.cfg')
         # log_file = '/opt/minecraft/logs/latest.log'
-        log_file = '/Users/eric/Documents/latest.log'
+        # log_file = '/Users/eric/Documents/latest.log'
+        log_file = config.get('General', 'minecraft_log_path')
         message = 'Starting server log watch on {0}'.format(log_file)
         bot.say(msg.channel, message)
         patterns = {
